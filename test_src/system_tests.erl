@@ -33,11 +33,10 @@
 %% --------------------------------------------------------------------
 start()->
     ?debugMsg("Test system setup"),
-    system_start(),
-    %% Start application tests
+    system_start_test(),
 
- %   ?debugMsg("computer_test"),    
- %   ?assertEqual(ok,computer_test:start()),
+    ?debugMsg("iaas_test"),    
+    ?assertEqual(ok,iaas_test:start()),
 %    ?debugMsg("init_test"),    
 %    ?assertEqual(ok,second_test:start()),
 
@@ -52,6 +51,14 @@ start()->
 %% Description: Initiate the eunit tests, set upp needed processes etc
 %% Returns: non
 %% --------------------------------------------------------------------
+system_start_test()->
+    HostId=net_adm:localhost(),
+    MnesiaVm=list_to_atom("mnesia@"++HostId),
+    application:start(dbase_service),
+    rpc:call(MnesiaVm,dbase_service,load_textfile,[?TEXTFILE]),
+    ?assertEqual(["sthlm_1","glurk","asus"],mnesia:dirty_all_keys(computer)),
+    ok.
+
 
 % Control plane
 % Kubernetes API Server 6443
@@ -88,6 +95,7 @@ system_start()->
     
     % create dirs and start vms
     [os:cmd("mkdir "++VmId)||VmId<-AllVmIds],
+ 
     start_vm(AllVmIds,[]),
     R=[net_adm:ping(Vm)||Vm<-AllVms],
     io:format("~p~n",[R]),

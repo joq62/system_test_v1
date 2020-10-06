@@ -11,9 +11,12 @@ doc_gen:
 test:
 	rm -rf  include configs *_service  erl_crasch.dump;
 #	include
-#	git clone https://github.com/joq62/include.git;	
-#	dbase_service
+#	git clone https://github.com/joq62/include.git;
 
+#	iaas
+	cp ../iaas/src/*.app ebin;
+	erlc -o ebin ../iaas/src/*.erl;
+#	dbase_service
 	cp ../dbase_service/src/*.app ebin;
 	erlc -o ebin ../dbase_service/src/*.erl;
 #	test
