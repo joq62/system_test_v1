@@ -26,9 +26,17 @@
 %% External functions
 %% ====================================================================
 setup()->
-    ?assertEqual(ok,application:start(iaas)),
     ssh:start(),
-    {atomic,ok}=db_computer:create({computer,"glurk","pi","festum01","192.168.0.110",60100}),
+    {atomic,ok}=db_computer:delete("glurk"),
+    {atomic,ok}=db_computer:delete("glurk2"),
+
+    {atomic,ok}=db_computer:create({computer,"wrong_hostname","pi","festum01","192.168.0.110",60100}),
+    {atomic,ok}=db_computer:create({computer,"wrong_ipaddr","pi","festum01","25.168.0.110",60100}),
+    {atomic,ok}=db_computer:create({computer,"wrong_port","pi","festum01","192.168.0.110",2323}),
+    {atomic,ok}=db_computer:create({computer,"wrong_userid","glurk","festum01","192.168.0.110",60100}),
+    {atomic,ok}=db_computer:create({computer,"wrong_passwd","pi","glurk","192.168.0.110",60100}),
+    ?assertEqual(ok,application:start(iaas)),
+   
     ok.
 
 cleanup()->
@@ -55,9 +63,15 @@ start()->
 
 check_computer_status()->
     ComputerStatus=computer:check_computers(),
-    ?assertEqual([{stopped,"glurk"},
-		  {running,"asus"},
-		  {running,"sthlm_1"}],ComputerStatus),
+%    ?assertEqual([{stopped,"glurk"},
+%		  {running,"asus"},
+%		  {running,"sthlm_1"}],ComputerStatus),
+
+    ?assertEqual(["asus","sthlm_1"],iaas:running_computers()),
+%    ?assertEqual(["wrong_userid","wrong_hostname","wrong_passwd","wrong_ipaddr","wrong_port"],lists:flatlength(iaas:stopped_computers())),
+    ?assertEqual(60,lists:flatlength(iaas:stopped_computers())),
+
+
 %    ?assertEqual([{"sthlm_1","pi","festum01","192.168.0.110",60110},
 %		  {"glurk","pi","festum01","192.168.0.110",60100},
 %		  {"asus","pi","festum01","192.168.0.100",60100}],Result),
