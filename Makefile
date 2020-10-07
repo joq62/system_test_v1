@@ -22,4 +22,4 @@ test:
 #	test
 	erlc -o test_ebin test_src/*.erl;
 
-	erl -pa ebin -pa test_ebin -s system_tests start -sname mnesia -setcookie abc
+	erl -pa ebin -pa test_ebin -s system_tests start -sname 10250 -setcookie abc

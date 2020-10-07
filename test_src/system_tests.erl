@@ -42,7 +42,7 @@ start()->
 
       %% End application tests
   
-    cleanup(),
+  %  cleanup(),
     ok.
 
 
@@ -53,10 +53,10 @@ start()->
 %% --------------------------------------------------------------------
 system_start_test()->
     HostId=net_adm:localhost(),
-    MnesiaVm=list_to_atom("mnesia@"++HostId),
-    application:start(dbase_service),
+    MnesiaVm=list_to_atom("10250@"++HostId),
+    ok=application:start(dbase_service),
     rpc:call(MnesiaVm,dbase_service,load_textfile,[?TEXTFILE]),
-%    ?assertEqual(["sthlm_1","glurk","asus"],mnesia:dirty_all_keys(computer)),
+    timer:sleep(500),
     ok.
 
 

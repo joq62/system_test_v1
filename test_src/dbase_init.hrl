@@ -1,17 +1,17 @@
 {tables,
  [{computer,[{attributes,[host_id,ssh_uid,ssh_passwd, ip_addr,port]},
-	    {disc_copies,['mnesia@sthlm_1']}]},
+	    {disc_copies,['10250@asus']}]},
   {service_def,[{attributes,[id,vsn,git_user_id]},
-		{disc_copies,['mnesia@sthlm_1']}]},
+		{disc_copies,['10250@asus']}]},
   {deployment_spec,[{attributes,[id,vsn,sevices]},
-		    {disc_copies,['mnesia@sthlm_1']}]},
+		    {disc_copies,['10250@asus']}]},
   {deployment,[{attributes,[id,vsn,service_id,service_vsn,vm]},
-	       {disc_copies,['mnesia@sthlm_1']}]},
+	       {disc_copies,['10250@asus']}]},
   {service_discovery,[{attributes,[id,vm]},
-		      {disc_copies,['mnesia@sthlm_1']},
+		      {disc_copies,['10250@asus']},
 		      {type,bag}]},
   {passwd,[{attributes,[user_id,passwd]},
-		      {disc_copies,['mnesia@sthlm_1']},
+		      {disc_copies,['10250@asus']},
 		      {type,bag}]}
  ]
 }.
@@ -31,7 +31,7 @@
 {service_def,"multi_service","1.0.0","joq62"}.
 {service_def,"divi_service","1.0.0","joq62"}.
 
-{service_discovery,"dbase_service",'mnesia@asus'}.
+{service_discovery,"dbase_service",'10250@asus'}.
 
 
 {deployment_spec,"math","1.0.0",[{"adder_service","1.0.0",[any]}]}.
