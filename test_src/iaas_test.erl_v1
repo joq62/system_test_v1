@@ -58,21 +58,20 @@ cleanup()->
 %% --------------------------------------------------------------------
 start()->
     %initiate table 
-    ?debugMsg("Start setup"),
+    ?debugMsg("setup"),
     ?assertEqual(ok,setup()),
-    ?debugMsg("End setup"),
 
-    ?debugMsg("Start check_computer_status"),
+    ?debugMsg("check_computer_status"),
     ?assertEqual(ok,check_computer_status()),
-    ?debugMsg("End check_computer_status"),
     
-    ?debugMsg("Start hb_check"),
+    ?debugMsg("hb_check"),
     ?assertEqual(ok,hb_check()),
-    ?debugMsg("End hb_check"),
     
-    ?debugMsg("Start cleanup"),
+    
+    
+    ?debugMsg("cleanup"),
     ?assertEqual(ok,cleanup()),
-    ?debugMsg("End cleanup"),
+
     ok.
 
 
@@ -109,49 +108,50 @@ check_computer_status()->
 %% Returns: non
 %% --------------------------------------------------------------------
 hb_check()->
-    ?debugMsg("Start Update current state"),
+    % Update actual state
     RunningComputers=iaas:running_computers(),
     AvailableComputers=iaas:available_computers(),
     NotAvailableComputers=iaas:not_available_computers(),
-%    io:format("RunningComputers = ~p~n",[{RunningComputers, ?MODULE,?LINE}]),
-%    io:format("AvailableComputers = ~p~n",[{AvailableComputers,?MODULE,?LINE}]),
-%    io:format("NotAvailableComputers = ~p~n",[{NotAvailableComputers,?MODULE,?LINE}]),
-    ?debugMsg("End Update current state"),
+    io:format("RunningComputers = ~p~n",[{RunningComputers, ?MODULE,?LINE}]),
+    io:format("AvailableComputers = ~p~n",[{AvailableComputers,?MODULE,?LINE}]),
+    io:format("NotAvailableComputers = ~p~n",[{NotAvailableComputers,?MODULE,?LINE}]),
 
-    ?debugMsg("Start clean and start Control nodes"),
+    % Start host vm  10250
     HostId="sthlm_1",
     VmId="10250",
     Vm=list_to_atom(VmId++"@"++HostId),
+    ?debugMsg("clean_node"),
     ?assertEqual(ok,node_clean(HostId,VmId)),
+    ?debugMsg("start_node"),
+    
     ResultHostVmStart=node_start(HostId,VmId),
     ?assertEqual(ok,ResultHostVmStart),
     pong=net_adm:ping(Vm),
-    ?debugMsg("End clean and start Control nodes"),
     
-    ?debugMsg("Start clean and start Worker nodes"),
+    % Clean all worker nodes
+    
     WorkerVms=[list_to_atom(WorkerId++"@"++HostId)||WorkerId<-?WorkerVmIds],
-    ResultWorkerClean= map_clean_node(?WorkerVmIds,HostId),
-    ResultWorkerStart=map_node_start(?WorkerVmIds,HostId),
-    ?debugMsg("End clean and start Worker nodes"),
-
-  %  io:format("WorkerStart = ~p~n",[{ResultWorkerStart,?MODULE,?LINE}]),
-    ?debugMsg("Start mnesia on Control node"),
-    ok=rpc:call(list_to_atom(?ControlVmId++"@"++HostId),mnesia,start,[]),
-    ?debugMsg("End mnesia on Control node"),
     
+    %Stop detached vms and delete dirs
+ 
+   % [clean_node(HostId,WorkerId)||WorkerId<-?WorkerVmIds],
+    ResultWorkerClean= map_clean_node(?WorkerVmIds,HostId),
+    io:format("ResultWorkerClean = ~p~n",[{ResultWorkerClean,?MODULE,?LINE}]),
+
+
+    %Create dir and start vm
+  %  [rpc:call(Vm,os,cmd,["mkdir "++WorkerId])||WorkerId<-?WorkerVmIds],
+    ResultWorkerStart=map_node_start(?WorkerVmIds,HostId),
+    io:format("WorkerStart = ~p~n",[{ResultWorkerStart,?MODULE,?LINE}]),
+     
     ok.
 
-% --------------------------------------------------------------------
-%% Function:start/0 
-%% Description: Initiate the eunit tests, set upp needed processes etc
-%% Returns: non
-%% --------------------------------------------------------------------
 
 map_node_start(VmIds,HostId)->
     Pids=map_node_start(VmIds,HostId,[]),
-%    io:format("Pids = ~p~n",[{Pids,?MODULE,?LINE}]),
+ %   io:format("Pids = ~p~n",[{Pids,?MODULE,?LINE}]),
     CollectedResult=map_node_collect(Pids),
-%    io:format("CollectedResult = ~p~n",[{CollectedResult,?MODULE,?LINE}]),
+   % io:format("CollectedResult = ~p~n",[{CollectedResult,?MODULE,?LINE}]),
     ResultNodeStart=map_node_reduce(CollectedResult),
     ResultNodeStart.
 
@@ -215,17 +215,11 @@ node_start(HostId,VmId)->
 		end,
     StartResult.
 
-% --------------------------------------------------------------------
-%% Function:start/0 
-%% Description: Initiate the eunit tests, set upp needed processes etc
-%% Returns: non
-%% --------------------------------------------------------------------
-
 map_clean_node(VmIds,HostId)->
     Pids=map_clean_node_start(VmIds,HostId,[]),
  %   io:format("Pids = ~p~n",[{Pids,?MODULE,?LINE}]),
     CollectedResult=map_clean_node_collect(Pids),
- %   io:format("CollectedResult = ~p~n",[{CollectedResult,?MODULE,?LINE}]),
+   % io:format("CollectedResult = ~p~n",[{CollectedResult,?MODULE,?LINE}]),
     ResultNodeStart=map_clean_node_reduce(CollectedResult),
     ResultNodeStart.
 
@@ -241,7 +235,7 @@ map_clean_node_collect([])->
     [];
 map_clean_node_collect(MapProcesses)->
     N=lists:flatlength(MapProcesses), 
-    map_clean_node_collect(N,[]).
+    map_node_collect(N,[]).
 
 map_clean_node_collect(0,CollectedInfo)->
     CollectedInfo;
@@ -259,23 +253,19 @@ map_clean_node_reduce(CollectedResult)->
 
 clean_node(Parent,HostId,VmId)->
     % Read computer info 
-    Result=case db_computer:read(HostId) of
-	       []->
-		   {error,[eexists,HostId]};
-	       [{HostId,User,PassWd,IpAddr,Port}]->
-						%	    ok=rpc:call(list_to_atom(?ControlVmId++"@"++HostId),
-						%			file,del_dir_r,[VmId]),
-		   rpc:call(list_to_atom(?ControlVmId++"@"++HostId),
-			      os,cmd,["rm -rf "++VmId]),
-		   R=rpc:call(list_to_atom(?ControlVmId++"@"++HostId),filelib,is_dir,[VmId]),
-		   timer:sleep(300),
-		   rpc:call(list_to_atom(VmId++"@"++HostId),
-			    init,stop,[]),
-		   timer:sleep(300),
-%		   io:format("rm -rf VmId = ~p~n",[{R,VmId,?MODULE,?LINE}]),
-		   {R,VmId}
+    case db_computer:read(HostId) of
+	[]->
+	    {error,[eexists,HostId]};
+	[{HostId,User,PassWd,IpAddr,Port}]->
+	    ok=rpc:call(list_to_atom(?ControlVmId++"@"++HostId),
+			file,del_dir_r,[VmId]),
+	    rpc:call(list_to_atom(VmId++"@"++HostId),
+		     init,stop,[]),
+	    timer:sleep(300),
+	    io:format("VmId = ~p",[{VmId,?MODULE,?LINE}])
+	  
     end,
-    Parent!{self(),Result}.
+    ok.
 
 node_clean(HostId,VmId)->
     % Read computer info 
@@ -283,8 +273,8 @@ node_clean(HostId,VmId)->
 	[]->
 	    {error,[eexists,HostId]};
 	[{HostId,User,PassWd,IpAddr,Port}]->
-	    ok=my_ssh:ssh_send(IpAddr,Port,User,PassWd,"rm -rf "++VmId,2*?TimeOut)
-%	    io:format("VmId = ~p",[{VmId,?MODULE,?LINE}])
+	    ok=my_ssh:ssh_send(IpAddr,Port,User,PassWd,"rm -rf "++VmId,2*?TimeOut),
+	    io:format("VmId = ~p",[{VmId,?MODULE,?LINE}])
 	  
     end,
     ok.
@@ -303,7 +293,7 @@ start_vm([VmId|T],Acc)->
     R2=os:cmd("erl -detached -setcookie abc -sname "++VmId),
     HostId=net_adm:localhost(),
     R1=check_started(100,list_to_atom(VmId++"@"++HostId),20,{error,VmId}),
-%    io:format("~p~n",[{?MODULE,?LINE,VmId,R1,R2}]),
+    io:format("~p~n",[{?MODULE,?LINE,VmId,R1,R2}]),
     start_vm(T,[{R1,R2}|Acc]).
 
 check_started(_N,_Vm,_Timer,ok)->

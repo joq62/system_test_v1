@@ -154,9 +154,9 @@ check_started(N,Vm,Timer,_Result)->
 
 
 cleanup()->
-    AllVmIds= lists:append([?ControlVmIds,?EtcdVmIds,?WorkerVmIds]),
-    clean_host(net_adm:localhost(),AllVmIds),
+  %  AllVmIds= lists:append([?ControlVmIds,?EtcdVmIds,?WorkerVmIds]),
+  %  clean_host(net_adm:localhost(),AllVmIds),
     MyNode=node(),
     [rpc:call(Node,init,stop,[])||Node<-[MyNode]],
-  %  init:stop(),
+    init:stop(),
     ok.
