@@ -35,8 +35,12 @@ start()->
     ?debugMsg("Test system setup"),
     system_start_test(),
 
+%    ?debugMsg("mapreduce_test"),    
+%    ?assertEqual(105,mapreduce:test()),
+
     ?debugMsg("iaas_test"),    
     ?assertEqual(ok,iaas_test:start()),
+
 %    ?debugMsg("init_test"),    
 %    ?assertEqual(ok,second_test:start()),
 
@@ -56,7 +60,11 @@ system_start_test()->
     MnesiaVm=list_to_atom("10250@"++HostId),
     ok=application:start(dbase_service),
     rpc:call(MnesiaVm,dbase_service,load_textfile,[?TEXTFILE]),
-    timer:sleep(500),
+  %  timer:sleep(3000),
+ % receive 
+%	infinity->
+%	    ok
+ %   end,
     ok.
 
 

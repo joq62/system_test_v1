@@ -18,6 +18,11 @@
 
 {computer,"asus","pi","festum01","192.168.0.100",60100}.
 {computer,"sthlm_1","pi","festum01","192.168.0.110",60110}.
+{computer,"wrong_hostname","pi","festum01","192.168.0.110",60100}.
+{computer,"wrong_ipaddr","pi","festum01","25.168.0.110",60100}.
+{computer,"wrong_port","pi","festum01","192.168.0.110",2323}.
+{computer,"wrong_userid","glurk","festum01","192.168.0.110",60100}.
+{computer,"wrong_passwd","pi","glurk","192.168.0.110",60100}.
 
 {passwd,"joq62","20Qazxsw20"}.
 

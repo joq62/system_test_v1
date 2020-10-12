@@ -149,14 +149,46 @@ hb_check()->
 %% --------------------------------------------------------------------
 
 map_node_start(VmIds,HostId)->
-    F1=fun start_node/2,
-    F2=fun start_node_result/3,
-    L=[{HostId,VmId}||VmId<-VmIds],
-    ResultNodeStart=mapreduce:start(F1,F2,[],L),
+    F1=fun 
+
+
+
+    Pids=map_node_start(VmIds,HostId,[]),
+%    io:format("Pids = ~p~n",[{Pids,?MODULE,?LINE}]),
+    CollectedResult=map_node_collect(Pids),
+%    io:format("CollectedResult = ~p~n",[{CollectedResult,?MODULE,?LINE}]),
+    ResultNodeStart=map_node_reduce(CollectedResult),
     ResultNodeStart.
 
+map_node_start([],_,MapProcesses)->
+    MapProcesses;
+map_node_start([WorkerId|T],HostId,Acc)->
+    Parent=self(),
+    Pid=spawn_link(fun()->start_node(Parent,HostId,WorkerId) end),
+    map_node_start(T,HostId,[{WorkerId,Pid}|Acc]).
+			   
 
-start_node(Parent,{HostId,VmId})->
+map_node_collect([])->
+    [];
+map_node_collect(MapProcesses)->
+    N=lists:flatlength(MapProcesses), 
+    map_node_collect(N,[]).
+
+map_node_collect(0,CollectedInfo)->
+    CollectedInfo;
+map_node_collect(N,Acc) ->
+    NewAcc=receive
+	       {_Pid,Result}->
+		   [Result|Acc]
+	   after 6*?TimeOut->
+		   [timeout|Acc]
+    end,
+    map_node_collect(N-1,NewAcc).
+
+map_node_reduce(CollectedResult)->		
+    CollectedResult.
+
+start_node(Parent,HostId,VmId)->
     StartResult=case db_computer:read(HostId) of
 		    []->
 			{error,[eexists,HostId]};
@@ -170,14 +202,9 @@ start_node(Parent,{HostId,VmId})->
 		%	io:format(",  ~p~n",[{R,?MODULE,?LINE}]),
 			R
 		end,
-    Parent!{start_node,StartResult}.
+    Parent!{self(),StartResult}.
 
-start_node_result(Key,Vals,_)->		
-    Vals.
-
-
-
-node_start(HostId,VmId)->
+node_start(ParentPid,HostId,VmId)->
     StartResult=case db_computer:read(HostId) of
 		    []->
 			{error,[eexists,HostId]};
@@ -191,21 +218,51 @@ node_start(HostId,VmId)->
 %			timer:sleep(500),
 			R
 		end,
-    StartResult.
+    ParentPid!{node_start,StartResult}.
 
 % --------------------------------------------------------------------
 %% Function:start/0 
 %% Description: Initiate the eunit tests, set upp needed processes etc
 %% Returns: non
 %% --------------------------------------------------------------------
+
 map_clean_node(VmIds,HostId)->
-    F1=fun clean_node/2,
-    F2=fun clean_node_result/3,
-    L=[{HostId,VmId}||VmId<-VmIds],
-    ResultNodeStart=mapreduce:start(F1,F2,[],L),
+    Pids=map_clean_node_start(VmIds,HostId,[]),
+ %   io:format("Pids = ~p~n",[{Pids,?MODULE,?LINE}]),
+    CollectedResult=map_clean_node_collect(Pids),
+ %   io:format("CollectedResult = ~p~n",[{CollectedResult,?MODULE,?LINE}]),
+    ResultNodeStart=map_clean_node_reduce(CollectedResult),
     ResultNodeStart.
 
-clean_node(Parent,{HostId,VmId})->
+map_clean_node_start([],_,MapProcesses)->
+    MapProcesses;
+map_clean_node_start([WorkerId|T],HostId,Acc)->
+    Parent=self(),
+    Pid=spawn_link(fun()->clean_node(Parent,HostId,WorkerId) end),
+    map_clean_node_start(T,HostId,[{WorkerId,Pid}|Acc]).
+			   
+
+map_clean_node_collect([])->
+    [];
+map_clean_node_collect(MapProcesses)->
+    N=lists:flatlength(MapProcesses), 
+    map_clean_node_collect(N,[]).
+
+map_clean_node_collect(0,CollectedInfo)->
+    CollectedInfo;
+map_clean_node_collect(N,Acc) ->
+    NewAcc=receive
+	       {_Pid,Result}->
+		   [Result|Acc]
+	   after 6*?TimeOut->
+		   [timeout|Acc]
+    end,
+    map_clean_node_collect(N-1,NewAcc).
+
+map_clean_node_reduce(CollectedResult)->		
+    CollectedResult.
+
+clean_node(Parent,HostId,VmId)->
     % Read computer info 
     Result=case db_computer:read(HostId) of
 	       []->
@@ -223,10 +280,7 @@ clean_node(Parent,{HostId,VmId})->
 %		   io:format("rm -rf VmId = ~p~n",[{R,VmId,?MODULE,?LINE}]),
 		   {R,VmId}
     end,
-    Parent!{clean_node,Result}.
-
-clean_node_result(Key,Vals,_)->		
-    Vals.
+    Parent!{self(),Result}.
 
 node_clean(HostId,VmId)->
     % Read computer info 
