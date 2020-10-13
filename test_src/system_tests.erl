@@ -39,7 +39,7 @@ start()->
 %    ?assertEqual(105,mapreduce:test()),
 
     ?debugMsg("iaas_test"),    
-    ?assertEqual(ok,iaas_test:start()),
+    ?assertEqual(ok,iaas_2_test:start()),
 
 %    ?debugMsg("init_test"),    
 %    ?assertEqual(ok,second_test:start()),
