@@ -56,11 +56,11 @@ start()->
 %% Returns: non
 %% --------------------------------------------------------------------
 system_start_test()->
-    HostId=net_adm:localhost(),
-    MnesiaVm=list_to_atom("10250@"++HostId),
-    ok=application:start(dbase_service),
-    rpc:call(MnesiaVm,dbase_service,load_textfile,[?TEXTFILE]),
-  %  timer:sleep(3000),
+ %   HostId=net_adm:localhost(),
+ %   MnesiaVm=list_to_atom("10250@"++HostId),
+ %   ok=application:start(dbase_service),
+ %   rpc:call(MnesiaVm,dbase_service,load_textfile,[?TEXTFILE]),
+ %   timer:sleep(1000),
  % receive 
 %	infinity->
 %	    ok

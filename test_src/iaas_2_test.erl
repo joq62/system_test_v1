@@ -33,9 +33,9 @@
 %% External functions
 %% ====================================================================
 setup()->
-    Vm=list_to_atom("10250@sthlm_1"),
-    rpc:call(Vm,init,stop,[]),
-    ssh:start(),
+  %  Vm=list_to_atom("10250@sthlm_1"),
+  %  rpc:call(Vm,init,stop,[]),
+  %  ssh:start(),
     ?assertEqual(ok,application:start(iaas)),
    % {atomic,ok}=db_computer:delete("glurk"),
    % {atomic,ok}=db_computer:delete("glurk2"),
@@ -63,9 +63,9 @@ start()->
     ?assertEqual(ok,setup()),
     ?debugMsg("End setup"),
 
-    ?debugMsg("Start check_computer_status"),
-    ?assertEqual(ok,check_computer_status()),
-    ?debugMsg("End check_computer_status"),
+  %  ?debugMsg("Start check_computer_status"),
+ %   ?assertEqual(ok,check_computer_status()),
+ %   ?debugMsg("End check_computer_status"),
     
   %  ?debugMsg("Start hb_check"),
   %  ?assertEqual(ok,hb_check()),
@@ -91,7 +91,7 @@ start()->
 %% Returns: non
 %% --------------------------------------------------------------------
 check_computer_status()->
-    ComputerStatus=computer:status(),
+    ComputerStatus=computer:status_computers(),
     io:format("ComputerStatus  = ~p~n",[{?MODULE,?LINE,ComputerStatus}]),
   %  ?assertEqual([{stopped,"glurk"},
 %		  {running,"asus"},
