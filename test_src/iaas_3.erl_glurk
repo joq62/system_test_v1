@@ -63,13 +63,9 @@ start()->
     ?assertEqual(ok,setup()),
     ?debugMsg("End setup"),
 
-%    ?debugMsg("Start check_computer_status"),
-%    ?assertEqual(ok,check_computer_status()),
-%    ?debugMsg("End check_computer_status"),
-
-    ?debugMsg("Start loop"),
-    ?assertEqual(ok,loop(100,20000)),
-    ?debugMsg("End loop"),
+  %  ?debugMsg("Start check_computer_status"),
+ %   ?assertEqual(ok,check_computer_status()),
+ %   ?debugMsg("End check_computer_status"),
     
   %  ?debugMsg("Start hb_check"),
   %  ?assertEqual(ok,hb_check()),
@@ -94,51 +90,6 @@ start()->
 %% Description: Initiate the eunit tests, set upp needed processes etc
 %% Returns: non
 %% --------------------------------------------------------------------
-loop(0,_)->
-    ok;
-loop(N,I) ->
-    io:format(" *************** "),
-    io:format(" ~p",[{time()}]),
-    io:format(" *************** ~n"),
-
-
-  %  RunningComputers=iaas:running_computers(),
-  %  io:format("RunningComputers  = ~p~n",[RunningComputers]),
-
-  %  AvailableComputers=iaas:available_computers(),
-  %  io:format("AvailableComputers  = ~p~n",[AvailableComputers]),
-
-  %  NotAvailableComputers=iaas:not_available_computers(),
-  %  io:format("NotAvailableComputers  = ~p~n",[NotAvailableComputers]),
-
-    RunningComputers=iaas:computer_status(running),
-    io:format("RunningComputers : ~p~n",[RunningComputers]),
-
-    AvailableComputers=iaas:computer_status(available),
-    io:format("AvailableComputers : ~p~n",[AvailableComputers]),
-
-    NotAvailableComputers=iaas:computer_status(not_available),
-    io:format( "NotAvailableComputers : ~p~n",[NotAvailableComputers]),
-
-    RunningVms=iaas:vm_status(running),
-    io:format("RunningVms : ~p~n",[RunningVms]),
-
-    AvailableVms=iaas:vm_status(available),
-    io:format("AvailableVms : ~p~n",[AvailableVms]),
-
-    NotAvailableVms=iaas:vm_status(not_available),
-    io:format( "NotAvailableVms : ~p~n",[NotAvailableVms]),
-
-    Candidates=vms:candidates([],RunningVms),
-    io:format( "Candidates : ~p~n",[Candidates]),    
-
-    timer:sleep(I),
-    loop(N-1,I).
-
-    
-
-
-
 check_computer_status()->
     ComputerStatus=computer:status_computers(),
     io:format("ComputerStatus  = ~p~n",[{?MODULE,?LINE,ComputerStatus}]),

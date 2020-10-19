@@ -1,6 +1,10 @@
 {tables,
  [{computer,[{attributes,[host_id,ssh_uid,ssh_passwd, ip_addr,port]},
-	    {disc_copies,['10250@asus']}]},
+	     {disc_copies,['10250@asus']}]},
+  {vm_id,[{attributes,[type,id]},
+	  {disc_copies,['10250@asus']},
+	  {type,bag}]},
+
   {service_def,[{attributes,[id,vsn,git_user_id]},
 		{disc_copies,['10250@asus']}]},
   {deployment_spec,[{attributes,[id,vsn,sevices]},
@@ -15,6 +19,18 @@
 		      {type,bag}]}
  ]
 }.
+{vm_id,controller,"10250"}.
+{vm_id,worker,"30000"}.
+{vm_id,worker,"30001"}.
+{vm_id,worker,"30002"}.
+{vm_id,worker,"30003"}.
+{vm_id,worker,"30004"}.
+{vm_id,worker,"30005"}.
+{vm_id,worker,"30006"}.
+{vm_id,worker,"30007"}.
+{vm_id,worker,"30008"}.
+{vm_id,worker,"30009"}.
+
 
 {computer,"asus","pi","festum01","192.168.0.100",60100}.
 {computer,"sthlm_1","pi","festum01","192.168.0.110",60110}.

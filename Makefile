@@ -1,5 +1,5 @@
 all:
-	rm -rf *@asus include *~ */*~ */*/*~;
+	rm -rf  *~ */*~ */*/*~;
 	rm -rf ebin/* test_ebin/*;
 	rm -rf *.beam erl_crash.dump */erl_crash.dump */*/erl_crash.dump;
 	erlc -o test_ebin test_src/*.erl,
