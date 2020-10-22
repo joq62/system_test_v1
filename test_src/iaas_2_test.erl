@@ -36,7 +36,8 @@ setup()->
   %  Vm=list_to_atom("10250@sthlm_1"),
   %  rpc:call(Vm,init,stop,[]),
   %  ssh:start(),
-    ?assertEqual(ok,application:start(iaas)),
+  %  ?assertEqual(ok,application:start(iaas)),
+   application:start(iaas),	
    % {atomic,ok}=db_computer:delete("glurk"),
    % {atomic,ok}=db_computer:delete("glurk2"),
 
@@ -112,25 +113,63 @@ loop(N,I) ->
   %  io:format("NotAvailableComputers  = ~p~n",[NotAvailableComputers]),
 
     RunningComputers=iaas:computer_status(running),
-    io:format("RunningComputers : ~p~n",[RunningComputers]),
+ %   io:format("RunningComputers : ~p~n",[RunningComputers]),
 
     AvailableComputers=iaas:computer_status(available),
-    io:format("AvailableComputers : ~p~n",[AvailableComputers]),
+ %   io:format("AvailableComputers : ~p~n",[AvailableComputers]),
 
     NotAvailableComputers=iaas:computer_status(not_available),
-    io:format( "NotAvailableComputers : ~p~n",[NotAvailableComputers]),
+ %   io:format( "NotAvailableComputers : ~p~n",[NotAvailableComputers]),
 
     RunningVms=iaas:vm_status(running),
-    io:format("RunningVms : ~p~n",[RunningVms]),
+  %  io:format("RunningVms : ~p~n",[RunningVms]),
 
     AvailableVms=iaas:vm_status(available),
-    io:format("AvailableVms : ~p~n",[AvailableVms]),
+  %  io:format("AvailableVms : ~p~n",[AvailableVms]),
 
     NotAvailableVms=iaas:vm_status(not_available),
-    io:format( "NotAvailableVms : ~p~n",[NotAvailableVms]),
+  %  io:format( "NotAvailableVms : ~p~n",[NotAvailableVms]),
 
-    Candidates=vms:candidates([],RunningVms),
-    io:format( "Candidates : ~p~n",[Candidates]),    
+    Candidates10=iaas:get_all_vms(),
+    io:format( "Candidates10 : ~p~n",[Candidates10]),  
+    GetR10=iaas:get_vm(),
+    io:format( "GetR10 : ~p~n",[GetR10]), 
+    GetR11=iaas:get_vm(),
+    io:format( "GetR11 : ~p~n",[GetR11]), 
+
+    Candidates11=iaas:get_all_vms(),
+    io:format( "Candidates11 : ~p~n",[Candidates11]),  
+
+    GetR2=iaas:get_vm(not_from,["sthlm_1","asus"]),
+    io:format( "GetR2 : ~p~n",[GetR2]), 
+    GetR21=iaas:get_vm(not_from,["sthlm_1"]),
+    io:format( "GetR21 : ~p~n",[GetR21]), 
+    GetR3=iaas:get_vm(from,["sthlm_1"]),
+    io:format( "GetR3 : ~p~n",[GetR3]), 
+    Candidates20=iaas:get_all_vms(),
+    io:format( "Candidates20 : ~p~n",[Candidates20]),  
+
+    %% Orchistrate
+    % Instance 1 
+    case iaas:get_vm() of
+	{error,[no_vms_running]}->
+	    ok;
+	{ok,{HostId1,VmId1,Vm1}}->
+	    io:format( "{HostId1,VmId1,Vm1} : ~p~n",[{HostId1,VmId1,Vm1}]),
+	    % Instance 2
+	    case iaas:get_vm(not_from,[HostId1]) of
+		{error,[no_vms_running]}->
+		    ok;
+		{ok,{HostId2,VmId2,Vm2}}->
+		    io:format( "{HostId2,VmId2,Vm2} : ~p~n",[{HostId2,VmId2,Vm2}]),
+                    % Instance 3
+		     case iaas:get_vm(not_from,[HostId1,HostId2]) of
+			 {error,Err}->
+			     io:format( "{HostId3,VmId3,Vm3} : ~p~n",[ {error,Err}])
+		     end
+	    end
+    end,
+  
 
     timer:sleep(I),
     loop(N-1,I).

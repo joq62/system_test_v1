@@ -9,12 +9,15 @@ doc_gen:
 	erlc ../doc_gen.erl;
 	erl -s doc_gen start -sname doc
 test:
-	rm -rf  include configs *_service  erl_crasch.dump test_ebin/*.beam;
+	rm -rf  include configs *_service  erl_crasch.dump ebin/* test_ebin/*.beam;
 #	include
 #	git clone https://github.com/joq62/include.git;
 
 #	common
 	erlc -o ebin ../common/src/*.erl;
+#	control
+	cp ../control/src/*.app ebin;
+	erlc -o ebin ../control/src/*.erl;
 #	iaas
 	cp ../iaas/src/*.app ebin;
 	erlc -o ebin ../iaas/src/*.erl;

@@ -6,12 +6,15 @@
 	  {type,bag}]},
 
   {service_def,[{attributes,[id,vsn,git_user_id]},
-		{disc_copies,['10250@asus']}]},
-  {deployment_spec,[{attributes,[id,vsn,sevices]},
-		    {disc_copies,['10250@asus']}]},
+		{disc_copies,['10250@asus']},
+		{type,bag}]},
+  {deployment_spec,[{attributes,[id,vsn,services]},
+		    {disc_copies,['10250@asus']},
+		    {type,bag}]},
   {deployment,[{attributes,[id,vsn,service_id,service_vsn,vm]},
-	       {disc_copies,['10250@asus']}]},
-  {service_discovery,[{attributes,[id,vm]},
+	       {disc_copies,['10250@asus']},
+	       {type,bag}]},
+  {service_discovery,[{attributes,[id,vsn,vm]},
 		      {disc_copies,['10250@asus']},
 		      {type,bag}]},
   {passwd,[{attributes,[user_id,passwd]},
@@ -52,10 +55,10 @@
 {service_def,"multi_service","1.0.0","joq62"}.
 {service_def,"divi_service","1.0.0","joq62"}.
 
-{service_discovery,"dbase_service",'10250@asus'}.
+{service_discovery,"dbase_service","1.0.0",'10250@asus'}.
 
 
-{deployment_spec,"math","1.0.0",[{"adder_service","1.0.0",[any]}]}.
+{deployment_spec,"math","1.0.0",[{"adder_service","1.0.0",[]}]}.
 
 
 
