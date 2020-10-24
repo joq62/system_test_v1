@@ -42,13 +42,18 @@ start()->
     ?assertEqual(ok,setup()),
     ?debugMsg("End setup"),
 
-    ?debugMsg("Start create_deployment_spec"),
-    ?assertEqual(ok,create_deployment_spec()),
-    ?debugMsg("End create_deployment_spec"),
-
     ?debugMsg("Start create_service"),
     ?assertEqual(ok,create_service()),
     ?debugMsg("End create_service"),
+
+
+    ?debugMsg("Start create_deployment_spec"),
+    %?assertEqual(ok,create_deployment_spec()),
+    create_deployment_spec(),
+    ?debugMsg("End create_deployment_spec"),
+
+
+
 
 %    ?debugMsg("Start loop"),
 %    ?assertEqual(ok,loop(100,20000)),
@@ -83,7 +88,37 @@ create_deployment_spec()->
 		    {"multi_service","1.0.0",[]},
 		    {"divi_service","1.0.0",[]}]}],control:read_deployment_spec(AppId,AppVsn)),
 
-    ok.
+    % Wanted Deploy State
+    % Check if restrictions
+    
+    BaseHostIdVmId=get_vm(),
+    StartResult=start_services(ServiceList,BaseHostIdVmId,[]),
+    io:format("BaseHostIdVmId,StartResult ~p~n",[{?MODULE,?LINE,BaseHostIdVmId,StartResult}]),
+    %Check if all succeded
+    R=case [{Result,XServiceId,XVsn,XHostId,XVmId}||{Result,XServiceId,XVsn,XHostId,XVmId}<-StartResult,
+						    Result/=ok] of
+	  []-> % All started as planned -> Update sd
+	      %db_deployed:add
+	      [sd:add(XServiceId,XVsn,list_to_atom(XVmId++"@"++XHostId))||{_,XServiceId,XVsn,XHostId,XVmId}<-StartResult];
+	  Err->
+	      [control:delete_service(XServiceId,XVsn,XHostId,XVmId)||{_,XServiceId,XVsn,XHostId,XVmId}<-StartResult],
+	      [sd:remove(XServiceId,XVsn,list_to_atom(XVmId++"@"++XHostId))||{_,XServiceId,XVsn,XHostId,XVmId}<-StartResult],
+	      {error,[deployment,AppId,AppVsn,ServiceList]}
+      end,
+    R.
+
+
+start_services([],_,Result)->
+    Result;
+start_services([{ServiceId,Vsn,[]}|T],{HostId,VmId},Acc)->
+    NewAcc=[{control:create_service(ServiceId,Vsn,HostId,VmId),ServiceId,Vsn,HostId,VmId}|Acc],
+    timer:sleep(1000),
+    start_services(T,{HostId,VmId},NewAcc);
+start_services([{ServiceId,Vsn,Restrictions}|T],{HostId,VmId},Acc) ->
+    start_services(T,{HostId,VmId},Acc).
+    
+
+
 % --------------------------------------------------------------------
 %% Function:start/0 
 %% Description: Initiate the eunit tests, set upp needed processes etc
@@ -97,7 +132,6 @@ create_service()->
     ok=control:create_service(ServiceId,Vsn,HostId,VmId),
     Vm=list_to_atom(VmId++"@"++HostId),
     ?assertEqual(42,rpc:call(Vm,adder_service,add,[20,22])),
-    
     ok=control:delete_service(ServiceId,Vsn,HostId,VmId),
     ?assertMatch({badrpc,_},rpc:call(Vm,adder_service,add,[20,22])),
     

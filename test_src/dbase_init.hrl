@@ -51,7 +51,6 @@
 {service_def,"catalog_service","1.0.0","joq62"}.
 {service_def,"orchistrate_service","1.0.0","joq62"}.
 {service_def,"adder_service","1.0.0","joq62"}.
-{service_def,"adder_service","1.0.0","joq62"}.
 {service_def,"multi_service","1.0.0","joq62"}.
 {service_def,"divi_service","1.0.0","joq62"}.
 

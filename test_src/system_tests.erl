@@ -20,12 +20,10 @@
 % worker nodes
 % kubelet API	      10250
 % pod		      30000-32767
-
+-define(Hosts,["asus","sthlm_1"]).
 -define(ControlVmIds,["10250","10251","10252"]).
 -define(EtcdVmIds,["2381","2379","2380"]).
--define(WorkerVmIds,["30000","30001","30002","30003","30004","30005","30006","30007","30008","30009",
-		   "30010","30011","30012","30013","30014","30015","30016","30017","30018","30019",
-		   "30020","30021","30022","30023","30024","30025","30026","30027","30028","30029"]).
+-define(WorkerVmIds,["30000","30001","30002","30003","30004","30005","30006","30007","30008","30009"]).
 
 
 
@@ -101,7 +99,6 @@ print_status()->
 
 
 
-
 %% --------------------------------------------------------------------
 %% Function:start/0 
 %% Description: Initiate the eunit tests, set upp needed processes etc
@@ -112,6 +109,12 @@ system_start_test()->
     ok=application:start(dbase_service),
     dbase_service:load_textfile(?TEXTFILE),
     timer:sleep(1000),
+
+%
+    
+    io:format("~p~n",[{?MODULE,?LINE,[computer:clean_vms(?WorkerVmIds,HostId)||HostId<-?Hosts]}]),
+    io:format("~p~n",[{?MODULE,?LINE,[computer:start_vms(?WorkerVmIds,HostId)||HostId<-?Hosts]}]),
+
     ok=application:start(iaas),
     ok=application:start(sd),
     ok=application:start(control),
