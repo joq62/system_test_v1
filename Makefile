@@ -15,6 +15,9 @@ test:
 
 #	common
 	erlc -o ebin ../common/src/*.erl;
+#	sd
+	cp ../sd/src/*.app ebin;
+	erlc -o ebin ../sd/src/*.erl;
 #	control
 	cp ../control/src/*.app ebin;
 	erlc -o ebin ../control/src/*.erl;
