@@ -46,14 +46,21 @@
 %% --------------------------------------------------------------------
 start()->
     ?debugMsg("Test system setup"),
+    
+    ?debugMsg("Start init_db_test"),    
+    init_db_test:start(),
+    ?debugMsg("Stop init_db_test"), 
+
+    ?debugMsg("Start system_start_test"),    
     system_start_test(),
+    ?debugMsg("Stop system_start_test"), 
 
-    ?debugMsg("print_status()"),    
-    spawn(fun()->print_status() end),
+%    ?debugMsg("print_status()"),    
+%    spawn(fun()->print_status() end),
 
 
-    ?debugMsg("deployment_test"),    
-    ?assertEqual(ok,deployment_test:start()),
+%    ?debugMsg("deployment_test"),    
+%    ?assertEqual(ok,deployment_test:start()),
 
 
   %  ?debugMsg("control_test"),    
@@ -103,21 +110,14 @@ print_status()->
 %% Function:start/0 
 %% Description: Initiate the eunit tests, set upp needed processes etc
 %% Returns: non
-%% --------------------------------------------------------------------
+%% -------------------------------------------------------------------
 system_start_test()->
-    ssh:start(),
-    ok=application:start(dbase_service),
-    dbase_service:load_textfile(?TEXTFILE),
-    timer:sleep(1000),
 
-%
-    
+    ssh:start(),
     io:format("~p~n",[{?MODULE,?LINE,[computer:clean_vms(?WorkerVmIds,HostId)||HostId<-?Hosts]}]),
     io:format("~p~n",[{?MODULE,?LINE,[computer:start_vms(?WorkerVmIds,HostId)||HostId<-?Hosts]}]),
 
-    ok=application:start(iaas),
-    ok=application:start(sd),
-    ok=application:start(control),
+    application:start(iaas),
     ok.
 
 
