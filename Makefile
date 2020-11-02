@@ -9,7 +9,7 @@ doc_gen:
 	erlc ../doc_gen.erl;
 	erl -s doc_gen start -sname doc
 test:
-	rm -rf  include configs *_service  erl_crasch.dump ebin/* test_ebin/*.beam;
+	rm -rf  *Mne erl_crasch.dump ebin/* test_ebin/*.beam;
 #	include
 #	git clone https://github.com/joq62/include.git;
 
