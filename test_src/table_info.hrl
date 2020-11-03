@@ -10,7 +10,7 @@
 [db_vm,'10250@asus',"asus","10250",controller,not_available].
 [db_vm,'30000@asus',"asus","30000",worker,not_available].
 [db_vm,'30001@asus',"asus","30001",worker,not_available].
-[db_vm,'30002@asus',"asus","30003",worker,not_available].
+[db_vm,'30002@asus',"asus","30002",worker,not_available].
 [db_vm,'30003@asus',"asus","30003",worker,not_available].
 [db_vm,'30004@asus',"asus","30004",worker,not_available].
 [db_vm,'30005@asus',"asus","30005",worker,not_available].
@@ -22,7 +22,7 @@
 [db_vm,'10250@sthlm_1',"sthlm_1","10250",controller,not_available].
 [db_vm,'30000@sthlm_1',"sthlm_1","30000",worker,not_available].
 [db_vm,'30001@sthlm_1',"sthlm_1","30001",worker,not_available].
-[db_vm,'30002@sthlm_1',"sthlm_1","30003",worker,not_available].
+[db_vm,'30002@sthlm_1',"sthlm_1","30002",worker,not_available].
 [db_vm,'30003@sthlm_1',"sthlm_1","30003",worker,not_available].
 [db_vm,'30004@sthlm_1',"sthlm_1","30004",worker,not_available].
 [db_vm,'30005@sthlm_1',"sthlm_1","30005",worker,not_available].
