@@ -20,6 +20,7 @@
 % worker nodes
 % kubelet API	      10250
 % pod		      30000-32767
+-define(DbaseVmId,"10250").
 -define(Hosts,["asus","sthlm_1"]).
 -define(ControlVmIds,["10250","10251","10252"]).
 -define(EtcdVmIds,["2381","2379","2380"]).
@@ -48,6 +49,15 @@ start()->
     ?debugMsg("Start setup"),
     ?assertEqual(ok,setup()),
     ?debugMsg("stop setup"),
+
+ %   ?debugMsg("Start allocate and free vm"),
+ %   ?assertEqual(ok,allocate_free:start()),
+ %   ?debugMsg("stop allocate and free vm"),
+
+    ?debugMsg("Start log test"),
+    ?assertEqual(ok,log_test:start()),
+    ?debugMsg("stop log test"),
+
   
  %   ?debugMsg("Start remote_node"),    
  %   remote_node(),
@@ -101,7 +111,9 @@ setup()->
     ?assertEqual(ok,init_tables:start()),
     ?assertEqual(ok,application:start(iaas)), 
     ?assertMatch({pong,_,_},iaas:ping()),
-
+    spawn(fun()->
+		  print_status() end),
+    
 
 
     ok.
@@ -112,22 +124,33 @@ setup()->
 %% Returns: non
 %% --------------------------------------------------------------------
 print_status()->
+     timer:sleep(10*1000),
      io:format(" *************** "),
     io:format(" ~p",[{time()}]),
     io:format(" *************** ~n"),
- 
+%    {ok,DbaseHostId}=inet:gethostname(),
+%    DbaseVm=list_to_atom(?DbaseVmId++"@"++DbaseHostId),
+%    io:format("RunningComputers : ~p~n",[rpc:call(DbaseVm,db_computer,status,[running])]),
+%    io:format("AvailableComputers : ~p~n",[rpc:call(DbaseVm,db_computer,status,[available])]),
+%    io:format( "NotAvailableComputers : ~p~n",[rpc:call(DbaseVm,db_computer,status,[not_available])]),
+
     io:format("RunningComputers : ~p~n",[iaas:computer_status(running)]),
     io:format("AvailableComputers : ~p~n",[iaas:computer_status(available)]),
     io:format( "NotAvailableComputers : ~p~n",[iaas:computer_status(not_available)]),
 
-    io:format("RunningVms : ~p~n",[iaas:vm_status(running)]),
-    io:format("AvailableVms : ~p~n",[iaas:vm_status(available)]),
+ %   io:format("RunningVms : ~p~n",[rpc:call(DbaseVm,db_vm,status,[running])]),
+ %   io:format("AvailableVms : ~p~n",[rpc:call(DbaseVm,db_vm,status,[available])]),
+ %   io:format( "NotAvailableVms : ~p~n",[rpc:call(DbaseVm,db_vm,status,[not_available])]),
 
-    io:format( "NotAvailableVms : ~p~n",[iaas:vm_status(not_available)]),
-    io:format( "Candidates : ~p~n",[iaas:get_all_vms()]),  
+    io:format("Allocated Vms : ~p~n",[iaas:vm_status(allocated)]),
+    io:format("Free Vms : ~p~n",[iaas:vm_status(free)]),
+    io:format( "NotAvailable Vms : ~p~n",[iaas:vm_status(not_available)]),
 
 
-    timer:sleep(60*1000),
+  %  io:format( "Candidates : ~p~n",[rpc:call(DbaseVm,db_vm,read_all,[])]),  
+
+
+    timer:sleep(50*1000),
     print_status().
 
 

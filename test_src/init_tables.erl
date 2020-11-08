@@ -47,6 +47,9 @@ init_table()->
 		  '30004@sthlm_1','30003@sthlm_1','30002@sthlm_1','30001@sthlm_1','30000@sthlm_1',
 		  '10250@sthlm_1','10250@asus'],
 		 mnesia:dirty_all_keys(vm)),
+
+    ?assertEqual([info],
+		 mnesia:dirty_all_keys(log)),
     ok.
 
 

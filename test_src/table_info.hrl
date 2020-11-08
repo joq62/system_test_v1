@@ -1,4 +1,6 @@
 
+[db_log,'10250@asus',module1,line1,info,{1962,03,07},{22,18,34},"System start and intial init of mnesia"].
+
 [db_computer,"asus","pi","festum01","192.168.0.100",60100,not_available].
 [db_computer,"sthlm_1","pi","festum01","192.168.0.110",60110,not_available].
 [db_computer,"wrong_hostname","pi","festum01","192.168.0.110",60100,not_available].
