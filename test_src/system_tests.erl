@@ -54,10 +54,17 @@ start()->
  %   ?assertEqual(ok,allocate_free:start()),
  %   ?debugMsg("stop allocate and free vm"),
 
+    ?debugMsg("Start sd test"),
+    ?assertEqual(ok,sd_test:start()),
+    ?debugMsg("stop sd test"),
+
     ?debugMsg("Start log test"),
     ?assertEqual(ok,log_test:start()),
     ?debugMsg("stop log test"),
 
+    ?debugMsg("Start deploy test"),
+    ?assertEqual(ok,deploy_test:start()),
+    ?debugMsg("stop deploy test"),
   
  %   ?debugMsg("Start remote_node"),    
  %   remote_node(),
@@ -111,6 +118,8 @@ setup()->
     ?assertEqual(ok,init_tables:start()),
     ?assertEqual(ok,application:start(iaas)), 
     ?assertMatch({pong,_,_},iaas:ping()),
+    ?assertEqual(ok,application:start(control)), 
+    ?assertMatch({pong,_,_},control:ping()),
     spawn(fun()->
 		  print_status() end),
     

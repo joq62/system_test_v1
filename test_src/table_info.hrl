@@ -36,11 +36,15 @@
 [db_service_def,"adder_service","1.0.0","joq62"].
 [db_service_def,"multi_service","1.0.0","joq62"].
 [db_service_def,"divi_service","1.0.0","joq62"].
+[db_service_def,"common","1.0.0","joq62"].
 
 
 [db_passwd,"joq62","20Qazxsw20"].
 
 [db_deployment_spec,"math","1.0.0",no_restrictions,[{"adder_service","1.0.0"},{"divi_service","1.0.0"}]].
+
+[db_sd,"iaas","1.0.0","asus","10250",'10250@asus'].
+[db_sd,"control","1.0.0","asus","10250",'10250@asus'].
 
 
 
