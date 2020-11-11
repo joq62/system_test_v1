@@ -42,12 +42,60 @@ start()->
     ?debugMsg("Start test2"),
     ?assertEqual(ok,test2()),
     ?debugMsg("Stop test2"),
+
+    ?debugMsg("Start test3"),
+    ?assertEqual(ok,test3()),
+    ?debugMsg("Stop test3"),
     
       %% End application tests
     cleanup(),
     ok.
 
 
+%% --------------------------------------------------------------------
+%% Function:start/0 
+%% Description: Initiate the eunit tests, set upp needed processes etc
+%% Returns: non
+%% --------------------------------------------------------------------
+test3()->
+    {ok,DeplId}=deploy(10,20*1000,"math","1.0.0",{error,[init]}),
+    io:format("DeplId= ~p~n",[{DeplId,time(),?MODULE,?LINE}]),
+    [AdderVm]=if_db:sd_get("adder_service","1.0.0"),
+    io:format("AdderVm = ~p~n",[{AdderVm,time(),?MODULE,?LINE}]),
+    ?assertEqual(42,rpc:call(AdderVm,adder_service,add,[20,22],5000)),
+    io:format("sd:read_all = ~p~n",[{if_db:sd_read_all(),time(),?MODULE,?LINE}]),
+    timer:sleep(61*1000),
+    ?assertEqual(ok,deployment:depricate_app(DeplId)),
+    ?assertEqual([],if_db:sd_get("adder_service","1.0.0")),
+    ?assertMatch({badrpc,_},rpc:call(AdderVm,adder_service,add,[20,22],5000)),
+    io:format("sd:read_all = ~p~n",[{if_db:sd_read_all(),time(),?MODULE,?LINE}]),
+    
+    
+    
+
+    ok.
+
+deploy(0,_,_,_,Result)->
+    Result;
+deploy(N,Interval,AppId,AppVsn,_Result)->
+    case rpc:call(node(),deployment,deploy_app,[AppId,AppVsn],20000) of
+	{error,Err}->
+	  %  io:format("{error,Err}= ~p~n",[{{error,Err},time(),?MODULE,?LINE}]),
+	    timer:sleep(Interval),
+	    NewN=N-1,
+	    NewResult={error,Err};
+	{badrpc,Err}->
+	 %   io:format("{badrpc,Err}= ~p~n",[{{badrpc,Err},time(),?MODULE,?LINE}]),
+	    timer:sleep(Interval),
+	    NewN=N-1,
+	    NewResult={badrpc,Err};
+	{ok,DeplId}->
+	 %   io:format("ok= ~p~n",[{R,time(),?MODULE,?LINE}]),
+	    NewN=0,
+	    NewResult={ok,DeplId}
+    end,
+    deploy(NewN,Interval,AppId,AppVsn,NewResult).
+	    
 %% --------------------------------------------------------------------
 %% Function:start/0 
 %% Description: Initiate the eunit tests, set upp needed processes etc
@@ -60,8 +108,6 @@ test2()->
 
     Glurk=if_db:deployment_spec_read("glurk","1.0.0"),
     ?assertEqual([],Glurk),
-   
-
     ok.
 %% Function:start/0 
 %% Description: Initiate the eunit tests, set upp needed processes etc
