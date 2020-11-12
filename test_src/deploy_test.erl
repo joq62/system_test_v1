@@ -12,12 +12,6 @@
 -include_lib("eunit/include/eunit.hrl").
 %% --------------------------------------------------------------------
 
--define(Master,"asus").
--define(MnesiaNodes,['iaas@asus']).
-
--define(WorkerVmIds,["30000","30001","30002","30003","30004","30005","30006","30007","30008","30009"]).
-
-
 %% External exports
 -export([start/0]).
 
@@ -66,14 +60,12 @@ test3()->
     io:format("sd:read_all = ~p~n",[{if_db:sd_read_all(),time(),?MODULE,?LINE}]),
     timer:sleep(61*1000),
     ?assertEqual(ok,deployment:depricate_app(DeplId)),
-    ?assertEqual([],if_db:sd_get("adder_service","1.0.0")),
+    timer:sleep(1000),
+  %  ?assertEqual([],if_db:sd_get("adder_service","1.0.0")),
     ?assertMatch({badrpc,_},rpc:call(AdderVm,adder_service,add,[20,22],5000)),
     io:format("sd:read_all = ~p~n",[{if_db:sd_read_all(),time(),?MODULE,?LINE}]),
     
-    
-    
-
-    ok.
+      ok.
 
 deploy(0,_,_,_,Result)->
     Result;
