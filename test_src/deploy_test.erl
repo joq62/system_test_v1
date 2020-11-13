@@ -109,7 +109,8 @@ test2()->
 
 
 test1()->
-    ?assertEqual([],if_db:deployment_read_all()),
+    ?assertEqual([{genesis,"control","1.0.0",{1970,1,1},{0,0,0},"asus","10250",
+		   [{"control","1.0.0",'10250@asus'},{"iaas","1.0.0",'10250@asus'}],ta_bort}],if_db:deployment_read_all()),
 
     ?assertEqual({atomic,ok},if_db: deployment_create(deployment_id_1,
 						      "math","1.0.0",
@@ -118,12 +119,13 @@ test1()->
 						      [{"adder_service","1.0.0"},{"divi_service","1.0.0"}],
 						      stopped)),
     timer:sleep(300),
-    ?assertEqual([{deployment_id_1,
-		   "math","1.0.0",
-		   {2020,11,1},{7,15,30},
-		   "sthlm_1","30000",
-		   [{"adder_service","1.0.0"},{"divi_service","1.0.0"}],
-		   stopped}],
+    ?assertEqual([{genesis,"control","1.0.0",{1970,1,1},{0,0,0},
+		   "asus","10250",[{"control","1.0.0",'10250@asus'},
+				   {"iaas","1.0.0",'10250@asus'}],
+		   ta_bort},
+		  {deployment_id_1,"math","1.0.0",{2020,11,1},{7,15,30},
+		   "sthlm_1","30000",[{"adder_service","1.0.0"},
+				      {"divi_service","1.0.0"}],stopped}],
 		 if_db:deployment_read_all()),
 
     ?assertEqual({atomic,ok},if_db: deployment_create(deployment_id_2,
@@ -134,23 +136,26 @@ test1()->
 						      stopped)),
 
     ?assertEqual([
-		  {deployment_id_2,"math","1.0.0",{2020,11,1},{7,15,30},"sthlm_1","30001",
-		   [{"adder_service","1.0.0"},{"divi_service","1.0.0"}],stopped},
-		  {deployment_id_1,"math","1.0.0",{2020,11,1},{7,15,30},"sthlm_1","30000",
-		   [{"adder_service","1.0.0"},{"divi_service","1.0.0"}],stopped}
-		 ],
+		  {genesis,"control","1.0.0",{1970,1,1},{0,0,0},"asus","10250",
+		   [{"control","1.0.0",'10250@asus'},{"iaas","1.0.0",'10250@asus'}],ta_bort},
+		  {deployment_id_2,"math","1.0.0",{2020,11,1},{7,15,30},"sthlm_1","30001",[{"adder_service","1.0.0"},{"divi_service","1.0.0"}],stopped},
+		   {deployment_id_1,"math","1.0.0",{2020,11,1},{7,15,30},"sthlm_1","30000",[{"adder_service","1.0.0"},{"divi_service","1.0.0"}],stopped}
+		],
 		 if_db:deployment_read_all()),
     
     ?assertEqual({atomic,ok},if_db: deployment_update_status(deployment_id_2,started)),
 
-    ?assertEqual([{deployment_id_2,"math","1.0.0",{2020,11,1},{7,15,30},"sthlm_1","30001",[{"adder_service","1.0.0"},{"divi_service","1.0.0"}],started},
+    ?assertEqual([
+		  {genesis,"control","1.0.0",{1970,1,1},{0,0,0},"asus","10250",[{"control","1.0.0",'10250@asus'},{"iaas","1.0.0",'10250@asus'}],ta_bort},
+		  {deployment_id_2,"math","1.0.0",{2020,11,1},{7,15,30},"sthlm_1","30001",[{"adder_service","1.0.0"},{"divi_service","1.0.0"}],started},
 		  {deployment_id_1,"math","1.0.0",{2020,11,1},{7,15,30},"sthlm_1","30000",[{"adder_service","1.0.0"},{"divi_service","1.0.0"}],stopped}
 		 ],
 		 if_db:deployment_read_all()),
 
     ?assertEqual({atomic,ok},if_db: deployment_delete(deployment_id_1)),
     ?assertEqual({atomic,ok},if_db: deployment_delete(deployment_id_2)),
-    ?assertEqual([],
+    ?assertEqual([{genesis,"control","1.0.0",{1970,1,1},{0,0,0},"asus","10250",
+		   [{"control","1.0.0",'10250@asus'},{"iaas","1.0.0",'10250@asus'}],ta_bort}],
 		 if_db:deployment_read_all()),
     
     

@@ -9,7 +9,7 @@
 [db_computer,"wrong_userid","glurk","festum01","192.168.0.110",60100,not_available].
 [db_computer,"wrong_passwd","pi","glurk","192.168.0.110",60100,not_available].
 
-[db_vm,'10250@asus',"asus","10250",controller,not_available].
+[db_vm,'10250@asus',"asus","10250",controller,allocated].
 [db_vm,'30000@asus',"asus","30000",worker,not_available].
 [db_vm,'30001@asus',"asus","30001",worker,not_available].
 [db_vm,'30002@asus',"asus","30002",worker,not_available].
@@ -42,6 +42,10 @@
 [db_passwd,"joq62","20Qazxsw20"].
 
 [db_deployment_spec,"math","1.0.0",no_restrictions,[{"adder_service","1.0.0"},{"divi_service","1.0.0"}]].
+[db_deployment_spec,"control","1.0.0",{node,'10250@asus'},[{"control","1.0.0"},{"iaas","1.0.0"}]].
+
+[db_deployment,genesis,"control","1.0.0",{1970,01,01},{00,00,00},"asus","10250",
+ [{"control","1.0.0",'10250@asus'},{"iaas","1.0.0",'10250@asus'}],ta_bort].
 
 [db_sd,"iaas","1.0.0","asus","10250",'10250@asus'].
 [db_sd,"control","1.0.0","asus","10250",'10250@asus'].
