@@ -121,8 +121,8 @@ setup()->
     ?assertMatch({pong,_,_},iaas:ping()),
     ?assertEqual(ok,application:start(control)), 
     ?assertMatch({pong,_,_},control:ping()),
-    spawn(fun()->
-		  print_status() end),
+  %  spawn(fun()->
+%		  print_status() end),
     
 
 
