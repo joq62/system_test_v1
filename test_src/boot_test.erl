@@ -4,17 +4,26 @@
 %%% 
 %%% Create1d : 10 dec 2012
 %%% -------------------------------------------------------------------
--module(system_tests). 
+-module(boot_test). 
     
 %% --------------------------------------------------------------------
 %% Include files
-%% --------------------------------------------------------------------
+
 -include_lib("eunit/include/eunit.hrl").
+%% --------------------------------------------------------------------
+
+%% --------------------------------------------------------------------
+%% Definitions
+-define(ClusterConfigDir,"cluster_config").
+-define(ClusterConfigFileName,"cluster_info.hrl").
+-define(GitUser,"joq62").
+-define(GitPassWd,"20Qazxsw20").
+%% --------------------------------------------------------------------
+
 
 %% --------------------------------------------------------------------
 %% External exports
 -export([start/0]).
-
 
 %% ====================================================================
 %% External functions
@@ -29,25 +38,9 @@ start()->
     ?debugMsg("Start setup"),
     ?assertEqual(ok,setup()),
     ?debugMsg("stop setup"),
-    
-    ?debugMsg("Start print_status"),
-    spawn(fun()->print_status() end),
 
- %   ?debugMsg("Start allocate and free vm"),
- %   ?assertEqual(ok,allocate_free:start()),
- %   ?debugMsg("stop allocate and free vm"),
+    ?assertEqual(ok,cleanup()),
 
-    ?debugMsg("Start boot_test"),
-    ?assertEqual(ok,boot_test:start()),
-    ?debugMsg("stop boot_test"),
-
-    ?debugMsg("Start cluster_test"),
-    ?assertEqual(ok,cluster_test:start()),
-    ?debugMsg("stop cluster_test"),
-
-      %% End application tests
-  
-  %  cleanup(),
     ?debugMsg("------>"++atom_to_list(?MODULE)++" ENDED SUCCESSFUL ---------"),
     ok.
 
@@ -60,7 +53,33 @@ start()->
 %% Returns: non
 %% --------------------------------------------------------------------
 setup()->
-   
+    ?assertEqual(ok,clone_start("common")),
+     ?assertEqual(ok,clone_start("dbase")),
+    ?assertEqual(ok,clone_start("server")),
+    server:preload_dbase(?ClusterConfigDir,?ClusterConfigFileName,?GitUser,?GitPassWd),
+    ?assertEqual(ok,clone_start("iaas")),
+
+    % check if server has started dbase
+    ?assertMatch([{"c2",_,_,"192.168.0.202",22,not_available},
+		  {"c1",_,_,"192.168.0.201",22,not_available},
+		  {"c0",_,_,"192.168.0.200",22,not_available}],
+		 if_db:server_read_all()),
+    ?assertMatch([{_,_}],
+		 if_db:passwd_read_all()),
+
+    ?assertMatch([{iaas,_,_},
+		  {ssh,_,_},
+		  {public_key,_,_},
+		  {asn1,_,_},
+		  {crypto,_,_},
+		  {server,_,_},
+		  {dbase,_,_},
+		  {mnesia,_,_},
+		  {common,_,_},
+		  {stdlib,_,_},
+		  {kernel,_,_}],
+		 application:which_applications()),
+    
     ok.
 
 %% --------------------------------------------------------------------
@@ -68,20 +87,18 @@ setup()->
 %% Description: Initiate the eunit tests, set upp needed processes etc
 %% Returns: non
 %% --------------------------------------------------------------------
-print_status()->
-    timer:sleep(30*1000),
-    io:format(" *************** "),
-    io:format(" ~p",[{time(),?MODULE}]),
-    io:format(" *************** ~n"),
-    io:format("~p~n",[iaas:machine_status(all)]),
-    spawn(fun()->print_status() end).
-
+clone_start(ServiceId)->
+    os:cmd("rm -rf "++ServiceId),
+    os:cmd("git clone https://"++?GitUser++":"++?GitPassWd++"@github.com/"++?GitUser++"/"++ServiceId++".git"),
+    ?assertEqual(true,code:add_path(ServiceId++"/ebin")),
+    ?assertEqual(ok,application:start(list_to_atom(ServiceId))),
+    ok.
 %% --------------------------------------------------------------------
 %% Function:start/0 
 %% Description: Initiate the eunit tests, set upp needed processes etc
 %% Returns: non
-%% -------------------------------------------------------------------    
+%% -------------------------------------------------------------------
 
 cleanup()->
-    init:stop(),
+
     ok.
