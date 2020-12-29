@@ -31,23 +31,19 @@ start()->
     ?debugMsg("stop setup"),
     
     ?debugMsg("Start print_status"),
-    spawn(fun()->print_status() end),
-
- %   ?debugMsg("Start allocate and free vm"),
- %   ?assertEqual(ok,allocate_free:start()),
- %   ?debugMsg("stop allocate and free vm"),
+ %   spawn(fun()->print_status() end),
 
     ?debugMsg("Start boot_test"),
     ?assertEqual(ok,boot_test:start()),
     ?debugMsg("stop boot_test"),
 
-    ?debugMsg("Start cluster_test"),
-    ?assertEqual(ok,cluster_test:start()),
-    ?debugMsg("stop cluster_test"),
+    ?debugMsg("Start control_test"),
+    ?assertEqual(ok,control_test:start()),
+    ?debugMsg("stop control_test"),
 
       %% End application tests
   
-  %  cleanup(),
+    cleanup(),
     ?debugMsg("------>"++atom_to_list(?MODULE)++" ENDED SUCCESSFUL ---------"),
     ok.
 
@@ -60,6 +56,7 @@ start()->
 %% Returns: non
 %% --------------------------------------------------------------------
 setup()->
+    
    
     ok.
 
@@ -73,7 +70,6 @@ print_status()->
     io:format(" *************** "),
     io:format(" ~p",[{time(),?MODULE}]),
     io:format(" *************** ~n"),
-    io:format("~p~n",[iaas:machine_status(all)]),
     spawn(fun()->print_status() end).
 
 %% --------------------------------------------------------------------
@@ -83,5 +79,9 @@ print_status()->
 %% -------------------------------------------------------------------    
 
 cleanup()->
+    io:format("stop_server server_a_100.app_spec ~p~n",[sys_test_deployment:delete_application("server_a_100.app_spec")]),
+    io:format("stop_server server_b_100.app_spec ~p~n",[sys_test_deployment:delete_application("server_b_100.app_spec")]),
+    io:format("stop_server server_c_100.app_spec ~p~n",[sys_test_deployment:delete_application("server_c_100.app_spec")]),
+   
     init:stop(),
     ok.
